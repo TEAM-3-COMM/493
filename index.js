@@ -25,6 +25,9 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   
   function getSpreadsheetData(){
     return axios.get('https://sheetdb.io/api/v1/cf4anvsxmwkjn');
+  }
+  function getstorehourslocation(){
+    return axios.get('https://sheetdb.io/api/v1/9hxleyuk1vccu');
     
   }
  
@@ -37,13 +40,11 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   
   function RefundRequestHandler(agent){
     const {
-      name, email, phone, reason, time
+      name, email, reason
     } = agent.parameters;
     const data = [{
       Name: name,
       Email: email,
-      Phone: phone,
-      Availaibility: time,
       Complaint: reason
       
     }];
@@ -57,9 +58,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
                 Our support representative will contact you soon.<br />
                 Ticket Details are, <br />
                 Name: ${name}<br />
-                Phone: ${phone}<br />
                 Reason: ${reason}<br />
-                Availbility: ${time}<br />
+                
                 <br />
                 Sincerely,<br />
                 <br />
@@ -77,49 +77,22 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   
   }
   
-//  function sendEmailHandler(agent){
-//    const { email, name } = agent.parameters;
-  //  const mailOptions = {
-    //    from: "Urban Closet", // sender address
-      //  to: email, // list of receivers
-//        subject: "Urban Closet Support Team", // Subject line
-//        html: `<p> Hello ${name} </p>`
-//    };
-    
-//     transporter.sendMail(mailOptions, function (err, info) {
-//        if(err)
-//        {
-//          console.log(err);
-//        }
-//    });
-  
-//  }
-  	function OTrackemailHandler(agent) {
-    const {email }= agent.parameters; 
-    return getSpreadsheetData().then(res => {
-      res.data.map(person => {
-        if(person.Email === email)
-        agent.add(`Here are the Order details for Email: ${email}. Customer Name : ${person.Name}, Order Number: ${person.Number}, Order Status: ${person.Status} ` ); 
-      });
-    });
-  }
+
   	function OTrackOnumHandler(agent) {
-    const {number }= agent.parameters; 
+    const {onumber }= agent.parameters; 
     return getSpreadsheetData().then(res => {
       res.data.map(person => {
-        if(person.Number === number)
-        agent.add(`Here are the Order details for Order Number: ${number}. Customer Name : ${person.Name}, Email: ${person.Email} Order Status: ${person.Status} ` ); 
+        if(person.Onumber === onumber)
+        agent.add(`Item # ${person.Order_Item} Product ID: ${person.Product_ID}, Product : ${person.Product}, Ship Date: ${person.Ship_Date} Order Status: ${person.Status} ` ); 
       });
     });
   }
   	function ExchangeRequestHandler(agent) {
-    const {name, email, phone, reason, time
+    const {name, email, reason
     } = agent.parameters;
     const data = [{
       Name: name,
       Email: email,
-      Phone: phone,
-      Availaibility: time,
       Complaint: reason
       
     }];
@@ -133,9 +106,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
                 Our support representative will contact you soon.<br />
                 Ticket Details are, <br />
                 Name: ${name}<br />
-                Phone: ${phone}<br />
                 Reason: ${reason}<br />
-                Availbility: ${time}<br />
+               
                 <br />
                 Sincerely,<br />
                 <br />
@@ -152,7 +124,15 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     });
   
   }
-  
+	function StoreHoursLocationHandler(agent) {
+    const {city}= agent.parameters; 
+    return getstorehourslocation().then(res => {
+      res.data.map(store => {
+        if(store.City === city)
+        agent.add(`In ${city}, our store Address is ${store.Address}, ${city}. Opening Hours: ${store.Hours}.  Phone: ${store.Phone} ` ); 
+      });
+    });
+  }
 
   // // Uncomment and edit to make your own intent handler
   // // uncomment `intentMap.set('your intent name here', yourFunctionHandler);`
@@ -186,10 +166,10 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   // Run the proper function handler based on the matched Dialogflow intent name
   let intentMap = new Map();
   intentMap.set('Default Fallback Intent', fallback);
-  intentMap.set('Refund Request' , RefundRequestHandler );
-  intentMap.set('Order Tracking - email', OTrackemailHandler);
-  intentMap.set('Order Tracking using Order Number', OTrackOnumHandler);
-  intentMap.set('Exchange Request', ExchangeRequestHandler);
+  intentMap.set('Refund Request - no' , RefundRequestHandler );
+  intentMap.set('Order Tracking', OTrackOnumHandler);
+  intentMap.set('Exchange Request - no', ExchangeRequestHandler);
+  intentMap.set('Hours & Location',StoreHoursLocationHandler);
   // intentMap.set('your intent name here', yourFunctionHandler);
   // intentMap.set('your intent name here', googleAssistantHandler);
   agent.handleRequest(intentMap);
