@@ -23,15 +23,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
   console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
   
-  function getSpreadsheetData(){
-    return axios.get('https://sheetdb.io/api/v1/cf4anvsxmwkjn');
-  }
-  function getstorehourslocation(){
-    return axios.get('https://sheetdb.io/api/v1/9hxleyuk1vccu');
-    
-  }
- 
-//
+
  
   function fallback(agent) {
     agent.add(`I didn't understand`);
@@ -79,7 +71,10 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   
 
   	function OTrackOnumHandler(agent) {
-    const {onumber }= agent.parameters; 
+    const {onumber }= agent.parameters;
+    function getSpreadsheetData(){
+    return axios.get('https://sheetdb.io/api/v1/cf4anvsxmwkjn');
+  }
     return getSpreadsheetData().then(res => {
       res.data.map(person => {
         if(person.Onumber === onumber)
@@ -126,6 +121,10 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   }
 	function StoreHoursLocationHandler(agent) {
     const {city}= agent.parameters; 
+    function getstorehourslocation(){
+    return axios.get('https://sheetdb.io/api/v1/9hxleyuk1vccu');
+    
+ }
     return getstorehourslocation().then(res => {
       res.data.map(store => {
         if(store.City === city)
